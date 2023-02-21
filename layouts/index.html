@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>Hugo - .InSection .IsAncestor .IsDescendant のテスト</title>
+  <style>
+    body { margin: 0.2rem; }
+    table { border-collapse: collapse; }
+    thead th {
+      /* 縦スクロール時に固定 */
+      position: sticky;
+      top: 0;
+      /* tbody 内のセルより手前に表示する */
+      z-index: 1;
+      background: #eee;
+      border-bottom: 2px solid gray;
+      padding: 0.5em;
+    }
+    td, th {
+      border: solid 1px gray;
+      padding: 0.3em;
+    }
+    th { text-align: center; }
+    .p1 { color: blue; }
+    .p2 { color: magenta; }
+    .same { background: #ffc; }
+  </style>
+</head>
+<body>
+
+{{/* 全てのページをループ処理（ただし、home と section と page のみで、taxonomy は除く） */}}
+{{- $pages := where .Site.Pages ".Kind" "in" (slice "home" "section" "page") }}
+
+<table style="font-family: monospace;">
+  <tr style="background: #eee;">
+    <thead>
+      <th><b class="p1">$p1</b></th>
+      <th><b class="p2">$p2</b></th>
+      <th><b class="p1">$p1</b>.InSection <b style="color: magenta">$p2</b></th>
+      <th><b class="p1">$p1</b>.IsAncestor <b style="color: magenta">$p2</b></th>
+      <th><b class="p1">$p1</b>.IsDescendant <b style="color: magenta">$p2</b></th>
+    </thead>
+  </tr>
+
+{{- range $pages }}
+  {{- $p1 := . }}
+  {{- range $pages }}
+    {{- $p2 := . }}
+    <tr>
+      <td class="p1{{ if eq $p1 $p2 }} same {{ end }}">{{ $p1.RelPermalink }}</td>
+      <td class="p2{{ if eq $p1 $p2 }} same {{ end }}">{{ $p2.RelPermalink }}</td>
+      <th {{ if eq $p1 $p2 }}class="same"{{ end }}>{{- if $p1.InSection $p2 }}true{{- end }}</th>
+      <th {{ if eq $p1 $p2 }}class="same"{{ end }}>{{- if $p1.IsAncestor $p2 }}true{{- end }}</th>
+      <th {{ if eq $p1 $p2 }}class="same"{{ end }}>{{- if $p1.IsDescendant $p2 }}true{{- end }}</th>
+    </tr>
+  {{- end }}
+  <tr style="border-bottom: 2px solid gray"></tr>
+{{- end }}
+
+</table>
+</body>
+</html>
